@@ -277,10 +277,6 @@ local function lighten_ass(c, amount)
 	return fmt_ass_color(r, g, b)
 end
 
-local function darken_ass(c, amount)
-	return lighten_ass(c, amount)
-end
-
 return {
 	interp_lch = interp_lch,
 	interp_lab = interp_lab,
@@ -293,6 +289,5 @@ return {
 	interp_alpha = interp_alpha,
 	fmt_alpha = fmt_ass_alpha,
 	lighten = lighten_ass,
-	darken = darken_ass,
 	lighten_complex = lighten,
 }
