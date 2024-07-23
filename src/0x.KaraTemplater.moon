@@ -79,8 +79,8 @@ util = (tenv) -> {
 		c1, c2 = cs[1 + math.floor t], cs[2 + math.floor t]
 		tenv.util.gbc c1, c2, interp, t % 1
 
-	make_grad: (v1, v2, dv=1, vertical=true, loopname='grad', extend=true) ->
-		tenv.maxloop loopname, math.ceil((v2 - v1) / dv)
+	make_grad: (v1, v2, dv=1, vertical=true, loopname='grad', extend=true, index=nil) ->
+		tenv.maxloop loopname, math.ceil((v2 - v1) / dv), index
 
 		loopctx, meta = tenv.loopctx, tenv.meta
 		loopval = loopctx.state[loopname]
@@ -131,7 +131,7 @@ util = (tenv) -> {
 		else
 			"%.#{digits}f"\format(n)\gsub('(%.%d-)0+$', '%1')\gsub('%.$', '')
 
-	fbf: (mode='line', start_offset=0, end_offset=0, frames=1, loopname='fbf') ->
+	fbf: (mode='line', start_offset=0, end_offset=0, frames=1, loopname='fbf', index=1) ->
 		tenv.retime mode, start_offset, end_offset
 
 		first_frame = aegisub.frame_from_ms tenv.line.start_time
@@ -139,7 +139,7 @@ util = (tenv) -> {
 
 		n_frames = last_frame - first_frame
 		loop_count = math.ceil(n_frames / frames)
-		tenv.maxloop loopname, loop_count
+		tenv.maxloop loopname, loop_count, index
 
 		i = tenv.loopctx.state[loopname]
 		start_time = aegisub.ms_from_frame(first_frame + (i - 1) * frames)
@@ -236,10 +236,13 @@ class template_env
 
 	_relayer = => (new_layer) -> @line.layer = new_layer
 
-	_maxloop = (name) => (var, val) ->
+	_maxloop = (name) => (var, val, index) ->
 		with @[name]
 			if .max[var] == nil
-				table.insert .vars, var
+				if index
+					table.insert .vars, index, var
+				else
+					table.insert .vars, var
 			.max[var] = val
 			.state[var] or= 1
 			-- BUG: there are unaccounted-for situations in which .done should be set to true
